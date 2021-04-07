@@ -6,20 +6,40 @@ import android.util.Log;
 
 public class CalculateRootsService extends IntentService {
 
-
   public CalculateRootsService() {
     super("CalculateRootsService");
   }
 
+
+
   @Override
   protected void onHandleIntent(Intent intent) {
     if (intent == null) return;
-    long timeStartMs = System.currentTimeMillis();
     long numberToCalculateRootsFor = intent.getLongExtra("number_for_service", 0);
     if (numberToCalculateRootsFor <= 0) {
       Log.e("CalculateRootsService", "can't calculate roots for non-positive input" + numberToCalculateRootsFor);
       return;
     }
+    Intent sendIntent = new Intent();
+    if(numberToCalculateRootsFor==1){
+      intent.setAction("found_roots");
+      intent.putExtra("original_number",numberToCalculateRootsFor);
+      intent.putExtra("root1",1);
+      intent.putExtra("root2",1);
+      sendBroadcast(sendIntent);
+    }
+
+    long timeStartMs = System.currentTimeMillis();
+    boolean timeElapsed = false;
+    System.currentTimeMillis();
+    while(timeElapsed){
+      if(System.currentTimeMillis() - timeStartMs > 20*1000 ){
+        timeElapsed = true;
+      }else{
+        calcRoots(numberToCalculateRootsFor);
+      }
+
+
     /*
     TODO:
      calculate the roots.
@@ -41,5 +61,29 @@ public class CalculateRootsService extends IntentService {
        for input "829851628752296034247307144300617649465159", after 20 seconds give up
 
      */
+    }
+
   }
+  void calcRoots(long numberToCalculateRootsFor){
+    System.out.println(numberToCalculateRootsFor);
+  }
+
+  void isPrime(long num){
+    boolean flag = false;
+    int i = 2;
+    while ( i<= num / 2) {
+      if (num % i == 0) {
+        flag = true;
+        break;
+      }
+
+      ++i;
+    }
+
+    if (!flag)
+      System.out.println(num + " is a prime number.");
+    else
+      System.out.println(num + " is not a prime number.");
+  }
+
 }
