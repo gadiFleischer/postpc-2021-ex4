@@ -20,23 +20,22 @@ public class CalculateRootsService extends IntentService {
     }
     Intent sendIntent = new Intent();
     if(numberToCalculateRootsFor==1){
-      sendGood(numberToCalculateRootsFor, intent,1,1);
+      sendGood(numberToCalculateRootsFor, sendIntent,1,1);
     }else{
       long timeStartMs = System.currentTimeMillis();
       for(long i=2;i<Math.sqrt(numberToCalculateRootsFor); i++){
         if (numberToCalculateRootsFor % i == 0){
-          sendGood(numberToCalculateRootsFor, intent,i,numberToCalculateRootsFor/i);
+          sendGood(numberToCalculateRootsFor, sendIntent,i,numberToCalculateRootsFor/i);
           return;
         }
         long checkTime=System.currentTimeMillis() - timeStartMs;
         if(checkTime > 20*1000 ){
-          sendBad(intent,numberToCalculateRootsFor,checkTime);
+          sendBad(sendIntent,numberToCalculateRootsFor,checkTime);
           return;
         }
       }
-
       //the number is prime
-      sendGood(numberToCalculateRootsFor, intent,numberToCalculateRootsFor,1);
+      sendGood(numberToCalculateRootsFor, sendIntent,numberToCalculateRootsFor,1);
     }
 
     /*

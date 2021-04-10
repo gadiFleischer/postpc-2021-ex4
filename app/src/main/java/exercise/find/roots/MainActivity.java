@@ -7,10 +7,12 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +20,8 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
   private BroadcastReceiver broadcastReceiverForSuccess = null;
-  private BroadcastReceiver broadcastReceiverForFailuer = null;
+  private BroadcastReceiver broadcastReceiverForFailure = null;
+
 
 
   @Override
@@ -58,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
         intentToOpenService.putExtra("number_for_service", userInputLong);
         startService(intentToOpenService);
         buttonCalculateRoots.setEnabled(false);
-        //when service come back,bring back to true
+        editTextUserInput.setEnabled(false);
+        progressBar.setVisibility(View.VISIBLE);
       }
       // todo: check that `userInputString` is a number. handle bad input. convert `userInputString` to long
       // todo: set views states according to the spec (below)
@@ -71,6 +75,15 @@ public class MainActivity extends AppCompatActivity {
         if (incomingIntent == null || !incomingIntent.getAction().equals("found_roots")){
           return;
         }
+        progressBar.setVisibility(View.GONE);
+        buttonCalculateRoots.setEnabled(true);
+        editTextUserInput.setEnabled(true);
+        editTextUserInput.setText("");
+        long firstRoot = incomingIntent.getLongExtra("root1", 0);
+        long secondRoot = incomingIntent.getLongExtra("root2", 0);
+        System.out.println("root1 is :"+firstRoot);
+        System.out.println("root2 is :"+secondRoot);
+        //add here new class
         // success finding roots!
         /*
          TODO: handle "roots-found" as defined in the spec (below).
@@ -81,24 +94,34 @@ public class MainActivity extends AppCompatActivity {
          */
       }
     };
-    registerReceiver(broadcastReceiverForSuccess, new IntentFilter("stopped_calculations"));
-    broadcastReceiverForFailuer = new BroadcastReceiver() {
+    registerReceiver(broadcastReceiverForSuccess, new IntentFilter("found_roots"));
+    registerReceiver(broadcastReceiverForFailure, new IntentFilter("stopped_calculations"));
+    broadcastReceiverForFailure = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent incomingIntent) {
         if (incomingIntent == null || !incomingIntent.getAction().equals("stopped_calculations")){
           return;
         }
-        // success finding roots!
-        /*
-         TODO: handle "roots-found" as defined in the spec (below).
-          also:
-           - the service found roots and passed them to you in the `incomingIntent`. extract them.
-           - when creating an intent to open the new-activity, pass the roots as extras to the new-activity intent
-             (see for example how did we pass an extra when starting the calculation-service)
-         */
+        progressBar.setVisibility(View.GONE);
+        buttonCalculateRoots.setEnabled(true);
+        editTextUserInput.setEnabled(true);
+        long firstRoot = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
+        long originalNumber = incomingIntent.getLongExtra("original_number", 0);
+        System.out.println("time is :"+ firstRoot);
+        System.out.println("original number is :"+originalNumber);
+        Toast.makeText(context, "calculation aborted after "+(originalNumber*1000)+" seconds", Toast.LENGTH_SHORT).show();
       }
     };
-    registerReceiver(broadcastReceiverForFailuer, new IntentFilter("stopped_calculations"));
+//        // success finding roots!
+//        /*
+//         TODO: handle "roots-found" as defined in the spec (below).
+//          also:
+//           - the service found roots and passed them to you in the `incomingIntent`. extract them.
+//           - when creating an intent to open the new-activity, pass the roots as extras to the new-activity intent
+//             (see for example how did we pass an extra when starting the calculation-service)
+//         */
+
+
 
 
 
@@ -114,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
   protected void onDestroy() {
     super.onDestroy();
     this.unregisterReceiver(broadcastReceiverForSuccess);
-    this.unregisterReceiver(broadcastReceiverForFailuer);
+    this.unregisterReceiver(broadcastReceiverForFailure);
     // todo: remove ALL broadcast receivers we registered earlier in onCreate().
     //  to remove a registered receiver, call method `this.unregisterReceiver(<receiver-to-remove>)`
   }
