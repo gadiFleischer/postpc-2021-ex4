@@ -10,8 +10,6 @@ public class CalculateRootsService extends IntentService {
     super("CalculateRootsService");
   }
 
-
-
   @Override
   protected void onHandleIntent(Intent intent) {
     if (intent == null) return;
@@ -20,25 +18,25 @@ public class CalculateRootsService extends IntentService {
       Log.e("CalculateRootsService", "can't calculate roots for non-positive input" + numberToCalculateRootsFor);
       return;
     }
-    Intent sendIntent = new Intent();
+//    Intent sendIntent = new Intent();
     if(numberToCalculateRootsFor==1){
-      intent.setAction("found_roots");
-      intent.putExtra("original_number",numberToCalculateRootsFor);
-      intent.putExtra("root1",1);
-      intent.putExtra("root2",1);
-      sendBroadcast(sendIntent);
-    }
-
-    long timeStartMs = System.currentTimeMillis();
-    boolean timeElapsed = false;
-    System.currentTimeMillis();
-    while(timeElapsed){
-      if(System.currentTimeMillis() - timeStartMs > 20*1000 ){
-        timeElapsed = true;
-      }else{
-        calcRoots(numberToCalculateRootsFor);
+      sendGood(numberToCalculateRootsFor, intent,1,1);
+    }else{
+      long timeStartMs = System.currentTimeMillis();
+      for(long i=2;i<Math.sqrt(numberToCalculateRootsFor); i++){
+        long checkTime=System.currentTimeMillis() - timeStartMs;
+        if(checkTime > 20*1000 ){
+          sendBad(intent,numberToCalculateRootsFor,checkTime);
+          return;
+        }
+        if (numberToCalculateRootsFor % i == 0){
+          sendGood(numberToCalculateRootsFor, intent,i,numberToCalculateRootsFor/i);
+          return;
+        }
       }
-
+      //the number is prime
+      sendGood(numberToCalculateRootsFor, intent,numberToCalculateRootsFor,1);
+    }
 
     /*
     TODO:
@@ -63,27 +61,18 @@ public class CalculateRootsService extends IntentService {
      */
     }
 
+  private void sendGood(long numberToCalculateRootsFor, Intent intent,long root1,long root2) {
+    intent.setAction("found_roots");
+    intent.putExtra("original_number",numberToCalculateRootsFor);
+    intent.putExtra("root1",root1);
+    intent.putExtra("root2",root2);
+    sendBroadcast(intent);
   }
-  void calcRoots(long numberToCalculateRootsFor){
-    System.out.println(numberToCalculateRootsFor);
-  }
-
-  void isPrime(long num){
-    boolean flag = false;
-    int i = 2;
-    while ( i<= num / 2) {
-      if (num % i == 0) {
-        flag = true;
-        break;
-      }
-
-      ++i;
-    }
-
-    if (!flag)
-      System.out.println(num + " is a prime number.");
-    else
-      System.out.println(num + " is not a prime number.");
+  void sendBad(Intent intent,long numberToCalculateRootsFor,long checkTime){
+    intent.setAction("stopped_calculations");
+    intent.putExtra("original_number",numberToCalculateRootsFor);
+    intent.putExtra("time_until_give_up_seconds",checkTime);
+    sendBroadcast(intent);
   }
 
 }
