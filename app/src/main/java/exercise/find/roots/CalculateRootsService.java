@@ -24,13 +24,13 @@ public class CalculateRootsService extends IntentService {
     }else{
       long timeStartMs = System.currentTimeMillis();
       for(long i=2;i<Math.sqrt(numberToCalculateRootsFor); i++){
+        if (numberToCalculateRootsFor % i == 0){
+          sendGood(numberToCalculateRootsFor, intent,i,numberToCalculateRootsFor/i);
+          return;
+        }
         long checkTime=System.currentTimeMillis() - timeStartMs;
         if(checkTime > 20*1000 ){
           sendBad(intent,numberToCalculateRootsFor,checkTime);
-          return;
-        }
-        if (numberToCalculateRootsFor % i == 0){
-          sendGood(numberToCalculateRootsFor, intent,i,numberToCalculateRootsFor/i);
           return;
         }
       }
