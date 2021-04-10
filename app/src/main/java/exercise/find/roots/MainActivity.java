@@ -81,8 +81,10 @@ public class MainActivity extends AppCompatActivity {
         editTextUserInput.setText("");
         long firstRoot = incomingIntent.getLongExtra("root1", 0);
         long secondRoot = incomingIntent.getLongExtra("root2", 0);
+        long timeCalc = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
         System.out.println("root1 is :"+firstRoot);
         System.out.println("root2 is :"+secondRoot);
+        System.out.println("time is :"+ timeCalc);
         //add here new class
         // success finding roots!
         /*
@@ -105,11 +107,11 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
         buttonCalculateRoots.setEnabled(true);
         editTextUserInput.setEnabled(true);
-        long firstRoot = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
+        long timeCalc = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
         long originalNumber = incomingIntent.getLongExtra("original_number", 0);
-        System.out.println("time is :"+ firstRoot);
+        System.out.println("time is :"+ timeCalc);
         System.out.println("original number is :"+originalNumber);
-        Toast.makeText(context, "calculation aborted after "+(originalNumber*1000)+" seconds", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "calculation aborted after "+(timeCalc*1000)+" seconds", Toast.LENGTH_SHORT).show();
       }
     };
 //        // success finding roots!

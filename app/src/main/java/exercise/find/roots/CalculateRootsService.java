@@ -19,23 +19,24 @@ public class CalculateRootsService extends IntentService {
       return;
     }
     Intent sendIntent = new Intent();
+    long timeStartMs = System.currentTimeMillis();
     if(numberToCalculateRootsFor==1){
-      sendGood(numberToCalculateRootsFor, sendIntent,1,1);
+      sendGood(numberToCalculateRootsFor, sendIntent,1,1,timeStartMs);
     }else{
-      long timeStartMs = System.currentTimeMillis();
+
       for(long i=2;i<Math.sqrt(numberToCalculateRootsFor); i++){
         if (numberToCalculateRootsFor % i == 0){
-          sendGood(numberToCalculateRootsFor, sendIntent,i,numberToCalculateRootsFor/i);
+          sendGood(numberToCalculateRootsFor, sendIntent,i,numberToCalculateRootsFor/i,timeStartMs);
           return;
         }
         long checkTime=System.currentTimeMillis() - timeStartMs;
-        if(checkTime > 20*1000 ){
+        if(checkTime/(20*1000) > 20 ){
           sendBad(sendIntent,numberToCalculateRootsFor,checkTime);
           return;
         }
       }
       //the number is prime
-      sendGood(numberToCalculateRootsFor, sendIntent,numberToCalculateRootsFor,1);
+      sendGood(numberToCalculateRootsFor, sendIntent,numberToCalculateRootsFor,1,timeStartMs);
     }
 
     /*
@@ -61,11 +62,14 @@ public class CalculateRootsService extends IntentService {
      */
     }
 
-  private void sendGood(long numberToCalculateRootsFor, Intent intent,long root1,long root2) {
+  private void sendGood(long numberToCalculateRootsFor, Intent intent,long root1,long root2,long timeStarts) {
     intent.setAction("found_roots");
     intent.putExtra("original_number",numberToCalculateRootsFor);
     intent.putExtra("root1",root1);
     intent.putExtra("root2",root2);
+    long x = System.currentTimeMillis();
+    long timeInSeconds = (x - timeStarts)/1000;
+    intent.putExtra("time_until_give_up_seconds",timeInSeconds);
     sendBroadcast(intent);
   }
   void sendBad(Intent intent,long numberToCalculateRootsFor,long checkTime){
