@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
       Intent intentToOpenService = new Intent(MainActivity.this, CalculateRootsService.class);
       String userInputString = editTextUserInput.getText().toString();
       if(userInputString.matches("-?\\d+(\\.\\d+)?")) {
-        long userInputLong = Long.parseLong(userInputString, 10);
+        long userInputLong = Long.parseLong(userInputString);
         intentToOpenService.putExtra("number_for_service", userInputLong);
         startService(intentToOpenService);
         buttonCalculateRoots.setEnabled(false);
@@ -82,10 +82,10 @@ public class MainActivity extends AppCompatActivity {
         long firstRoot = incomingIntent.getLongExtra("root1", 0);
         long secondRoot = incomingIntent.getLongExtra("root2", 0);
         long timeCalc = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
-        System.out.println("root1 is :"+firstRoot);
-        System.out.println("root2 is :"+secondRoot);
-        System.out.println("time is :"+ timeCalc);
-        //add here new class
+        System.out.println("root1 is :"+firstRoot);//TODO-delete
+        System.out.println("root2 is :"+secondRoot);//TODO-delete
+        System.out.println("time is :"+ timeCalc);//TODO-delete
+        //TODO-add class here
         // success finding roots!
         /*
          TODO: handle "roots-found" as defined in the spec (below).
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
       }
     };
     registerReceiver(broadcastReceiverForSuccess, new IntentFilter("found_roots"));
-    registerReceiver(broadcastReceiverForFailure, new IntentFilter("stopped_calculations"));
+
     broadcastReceiverForFailure = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent incomingIntent) {
@@ -107,13 +107,14 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
         buttonCalculateRoots.setEnabled(true);
         editTextUserInput.setEnabled(true);
-        long timeCalc = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
+        long timeCalcInSeconds = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
         long originalNumber = incomingIntent.getLongExtra("original_number", 0);
-        System.out.println("time is :"+ timeCalc);
-        System.out.println("original number is :"+originalNumber);
-        Toast.makeText(context, "calculation aborted after "+(timeCalc*1000)+" seconds", Toast.LENGTH_SHORT).show();
+        System.out.println("time is :"+ timeCalcInSeconds);//TODO-delete
+        System.out.println("original number is :"+originalNumber); //TODO-delete
+        Toast.makeText(context, "calculation aborted after "+(timeCalcInSeconds)+" seconds", Toast.LENGTH_SHORT).show();
       }
     };
+    registerReceiver(broadcastReceiverForFailure, new IntentFilter("stopped_calculations"));
 //        // success finding roots!
 //        /*
 //         TODO: handle "roots-found" as defined in the spec (below).
@@ -122,10 +123,6 @@ public class MainActivity extends AppCompatActivity {
 //           - when creating an intent to open the new-activity, pass the roots as extras to the new-activity intent
 //             (see for example how did we pass an extra when starting the calculation-service)
 //         */
-
-
-
-
 
     /*
     todo:

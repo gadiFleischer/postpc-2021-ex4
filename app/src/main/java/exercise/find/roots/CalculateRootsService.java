@@ -4,6 +4,8 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
+import java.util.concurrent.TimeUnit;
+
 public class CalculateRootsService extends IntentService {
 
   public CalculateRootsService() {
@@ -23,14 +25,13 @@ public class CalculateRootsService extends IntentService {
     if(numberToCalculateRootsFor==1){
       sendGood(numberToCalculateRootsFor, sendIntent,1,1,timeStartMs);
     }else{
-
-      for(long i=2;i<Math.sqrt(numberToCalculateRootsFor); i++){
+      for(long i=2;i< numberToCalculateRootsFor/2; i++){
         if (numberToCalculateRootsFor % i == 0){
           sendGood(numberToCalculateRootsFor, sendIntent,i,numberToCalculateRootsFor/i,timeStartMs);
           return;
         }
         long checkTime=System.currentTimeMillis() - timeStartMs;
-        if(checkTime/(20*1000) > 20 ){
+        if(TimeUnit.MILLISECONDS.toSeconds(checkTime) >= 20 ){
           sendBad(sendIntent,numberToCalculateRootsFor,checkTime);
           return;
         }
@@ -68,14 +69,14 @@ public class CalculateRootsService extends IntentService {
     intent.putExtra("root1",root1);
     intent.putExtra("root2",root2);
     long x = System.currentTimeMillis();
-    long timeInSeconds = (x - timeStarts)/1000;
+    long timeInSeconds = (long)((x - timeStarts)/1000);
     intent.putExtra("time_until_give_up_seconds",timeInSeconds);
     sendBroadcast(intent);
   }
   void sendBad(Intent intent,long numberToCalculateRootsFor,long checkTime){
     intent.setAction("stopped_calculations");
     intent.putExtra("original_number",numberToCalculateRootsFor);
-    intent.putExtra("time_until_give_up_seconds",checkTime);
+    intent.putExtra("time_until_give_up_seconds",(long)checkTime/1000);
     sendBroadcast(intent);
   }
 
