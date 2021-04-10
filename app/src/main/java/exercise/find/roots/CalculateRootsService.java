@@ -34,6 +34,7 @@ public class CalculateRootsService extends IntentService {
           return;
         }
       }
+
       //the number is prime
       sendGood(numberToCalculateRootsFor, intent,numberToCalculateRootsFor,1);
     }
