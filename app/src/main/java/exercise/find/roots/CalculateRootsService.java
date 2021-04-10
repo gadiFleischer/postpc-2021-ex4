@@ -18,7 +18,7 @@ public class CalculateRootsService extends IntentService {
       Log.e("CalculateRootsService", "can't calculate roots for non-positive input" + numberToCalculateRootsFor);
       return;
     }
-//    Intent sendIntent = new Intent();
+    Intent sendIntent = new Intent();
     if(numberToCalculateRootsFor==1){
       sendGood(numberToCalculateRootsFor, intent,1,1);
     }else{

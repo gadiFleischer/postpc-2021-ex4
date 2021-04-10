@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
   private BroadcastReceiver broadcastReceiverForSuccess = null;
-  // TODO: add any other fields to the activity as you want
+  private BroadcastReceiver broadcastReceiverForFailuer = null;
 
 
   @Override
@@ -43,18 +43,24 @@ public class MainActivity extends AppCompatActivity {
       public void afterTextChanged(Editable s) {
         // text did change
         String newText = editTextUserInput.getText().toString();
+        buttonCalculateRoots.setEnabled(newText.matches("-?\\d+(\\.\\d+)?"));
         // todo: check conditions to decide if button should be enabled/disabled (see spec below)
       }
     });
-
+//* when we triggered a calculation and still didn't get any result, button is disabled
+// * otherwise (valid number && not calculating anything in the BG), button is enabled
     // set click-listener to the button
     buttonCalculateRoots.setOnClickListener(v -> {
       Intent intentToOpenService = new Intent(MainActivity.this, CalculateRootsService.class);
       String userInputString = editTextUserInput.getText().toString();
+      if(userInputString.matches("-?\\d+(\\.\\d+)?")) {
+        long userInputLong = Long.parseLong(userInputString, 10);
+        intentToOpenService.putExtra("number_for_service", userInputLong);
+        startService(intentToOpenService);
+        buttonCalculateRoots.setEnabled(false);
+        //when service come back,bring back to true
+      }
       // todo: check that `userInputString` is a number. handle bad input. convert `userInputString` to long
-      long userInputLong = 0; // todo this should be the converted string from the user
-      intentToOpenService.putExtra("number_for_service", userInputLong);
-      startService(intentToOpenService);
       // todo: set views states according to the spec (below)
     });
 
@@ -62,7 +68,9 @@ public class MainActivity extends AppCompatActivity {
     broadcastReceiverForSuccess = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent incomingIntent) {
-        if (incomingIntent == null || !incomingIntent.getAction().equals("found_roots")) return;
+        if (incomingIntent == null || !incomingIntent.getAction().equals("found_roots")){
+          return;
+        }
         // success finding roots!
         /*
          TODO: handle "roots-found" as defined in the spec (below).
@@ -73,7 +81,26 @@ public class MainActivity extends AppCompatActivity {
          */
       }
     };
-    registerReceiver(broadcastReceiverForSuccess, new IntentFilter("found_roots"));
+    registerReceiver(broadcastReceiverForSuccess, new IntentFilter("stopped_calculations"));
+    broadcastReceiverForFailuer = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent incomingIntent) {
+        if (incomingIntent == null || !incomingIntent.getAction().equals("stopped_calculations")){
+          return;
+        }
+        // success finding roots!
+        /*
+         TODO: handle "roots-found" as defined in the spec (below).
+          also:
+           - the service found roots and passed them to you in the `incomingIntent`. extract them.
+           - when creating an intent to open the new-activity, pass the roots as extras to the new-activity intent
+             (see for example how did we pass an extra when starting the calculation-service)
+         */
+      }
+    };
+    registerReceiver(broadcastReceiverForFailuer, new IntentFilter("stopped_calculations"));
+
+
 
     /*
     todo:
@@ -86,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onDestroy() {
     super.onDestroy();
+    this.unregisterReceiver(broadcastReceiverForSuccess);
+    this.unregisterReceiver(broadcastReceiverForFailuer);
     // todo: remove ALL broadcast receivers we registered earlier in onCreate().
     //  to remove a registered receiver, call method `this.unregisterReceiver(<receiver-to-remove>)`
   }
