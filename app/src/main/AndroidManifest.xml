@@ -21,9 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-<!--        TODO create a new class extending Activity and register it here in an <activity> tag -->
-
+        <activity android:name=".ShowRootsActivity" />
     </application>
 
 </manifest>

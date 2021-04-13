@@ -86,20 +86,12 @@ public class MainActivity extends AppCompatActivity {
         long firstRoot = incomingIntent.getLongExtra("root1", 0);
         long secondRoot = incomingIntent.getLongExtra("root2", 0);
         long timeCalc = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
-        System.out.println("root1 is :"+firstRoot);//TODO-delete
-        System.out.println("root2 is :"+secondRoot);//TODO-delete
-        System.out.println("time is :"+ timeCalc);//TODO-delete
-//        startActivity(intent);
-//        enableEdit();
-        //TODO-add class here
-        // success finding roots!
-        /*
-         TODO: handle "roots-found" as defined in the spec (below).
-          also:
-           - the service found roots and passed them to you in the `incomingIntent`. extract them.
-           - when creating an intent to open the new-activity, pass the roots as extras to the new-activity intent
-             (see for example how did we pass an extra when starting the calculation-service)
-         */
+        Intent showResultsIntent = new Intent(MainActivity.this, ShowRootsActivity.class);
+        showResultsIntent.putExtra("original_number", originNumber);
+        showResultsIntent.putExtra("root1", firstRoot);
+        showResultsIntent.putExtra("root2", secondRoot);
+        showResultsIntent.putExtra("time_until_give_up_seconds", timeCalc);
+        startActivity(showResultsIntent);
       }
     };
     registerReceiver(broadcastReceiverForSuccess, new IntentFilter("found_roots"));
@@ -115,9 +107,7 @@ public class MainActivity extends AppCompatActivity {
         editTextUserInput.setEnabled(true);
         long timeCalcInSeconds = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
         long originalNumber = incomingIntent.getLongExtra("original_number", 0);
-        System.out.println("time is :"+ timeCalcInSeconds);//TODO-delete
-        System.out.println("original number is :"+originalNumber); //TODO-delete
-        Toast.makeText(MainActivity.this, "calculation aborted after "+timeCalcInSeconds+" seconds", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "calculation aborted after 20 seconds", Toast.LENGTH_SHORT).show();
 
       }
     };

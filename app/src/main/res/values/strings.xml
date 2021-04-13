@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FindRoots</string>
+    <string name="calclation_time_is_0">Calclation time is 0</string>
 </resources>
