@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
+  public static final String NUMBER_REGEX = "-?\\d+(\\.\\d+)?";
   private BroadcastReceiver broadcastReceiverForSuccess = null;
   private BroadcastReceiver broadcastReceiverForFailure = null;
 
@@ -46,26 +46,29 @@ public class MainActivity extends AppCompatActivity {
       public void afterTextChanged(Editable s) {
         // text did change
         String newText = editTextUserInput.getText().toString();
-        buttonCalculateRoots.setEnabled(newText.matches("-?\\d+(\\.\\d+)?"));
-        // todo: check conditions to decide if button should be enabled/disabled (see spec below)
+        if(newText.matches(NUMBER_REGEX)){
+          try{
+            long testNum =Long.parseLong(newText);
+            buttonCalculateRoots.setEnabled(testNum>0);
+          }catch(NumberFormatException e){
+            buttonCalculateRoots.setEnabled(false);
+          }
+        }else{
+          buttonCalculateRoots.setEnabled(false);
+        }
       }
     });
-//* when we triggered a calculation and still didn't get any result, button is disabled
-// * otherwise (valid number && not calculating anything in the BG), button is enabled
+
     // set click-listener to the button
     buttonCalculateRoots.setOnClickListener(v -> {
       Intent intentToOpenService = new Intent(MainActivity.this, CalculateRootsService.class);
       String userInputString = editTextUserInput.getText().toString();
-      if(userInputString.matches("-?\\d+(\\.\\d+)?")) {
-        long userInputLong = Long.parseLong(userInputString);
-        intentToOpenService.putExtra("number_for_service", userInputLong);
-        startService(intentToOpenService);
-        buttonCalculateRoots.setEnabled(false);
-        editTextUserInput.setEnabled(false);
-        progressBar.setVisibility(View.VISIBLE);
-      }
-      // todo: check that `userInputString` is a number. handle bad input. convert `userInputString` to long
-      // todo: set views states according to the spec (below)
+      long userInputLong = Long.parseLong(userInputString);
+      intentToOpenService.putExtra("number_for_service", userInputLong);
+      startService(intentToOpenService);
+      buttonCalculateRoots.setEnabled(false);
+      editTextUserInput.setEnabled(false);
+      progressBar.setVisibility(View.VISIBLE);
     });
 
     // register a broadcast-receiver to handle action "found_roots"
@@ -79,12 +82,15 @@ public class MainActivity extends AppCompatActivity {
         buttonCalculateRoots.setEnabled(true);
         editTextUserInput.setEnabled(true);
         editTextUserInput.setText("");
+        long originNumber = incomingIntent.getLongExtra("original_number", 0);
         long firstRoot = incomingIntent.getLongExtra("root1", 0);
         long secondRoot = incomingIntent.getLongExtra("root2", 0);
         long timeCalc = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
         System.out.println("root1 is :"+firstRoot);//TODO-delete
         System.out.println("root2 is :"+secondRoot);//TODO-delete
         System.out.println("time is :"+ timeCalc);//TODO-delete
+//        startActivity(intent);
+//        enableEdit();
         //TODO-add class here
         // success finding roots!
         /*
@@ -111,7 +117,8 @@ public class MainActivity extends AppCompatActivity {
         long originalNumber = incomingIntent.getLongExtra("original_number", 0);
         System.out.println("time is :"+ timeCalcInSeconds);//TODO-delete
         System.out.println("original number is :"+originalNumber); //TODO-delete
-        Toast.makeText(context, "calculation aborted after "+(timeCalcInSeconds)+" seconds", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "calculation aborted after "+timeCalcInSeconds+" seconds", Toast.LENGTH_SHORT).show();
+
       }
     };
     registerReceiver(broadcastReceiverForFailure, new IntentFilter("stopped_calculations"));
@@ -137,20 +144,21 @@ public class MainActivity extends AppCompatActivity {
     super.onDestroy();
     this.unregisterReceiver(broadcastReceiverForSuccess);
     this.unregisterReceiver(broadcastReceiverForFailure);
-    // todo: remove ALL broadcast receivers we registered earlier in onCreate().
-    //  to remove a registered receiver, call method `this.unregisterReceiver(<receiver-to-remove>)`
+
   }
 
   @Override
   protected void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
-    // TODO: put relevant data into bundle as you see fit
+    EditText editTextUserInput = findViewById(R.id.editTextInputNumber);
+    outState.putString("textInput", editTextUserInput.getText().toString());
   }
 
   @Override
   protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
-    // TODO: load data from bundle and set screen state (see spec below)
+    EditText editTextUserInput = findViewById(R.id.editTextInputNumber);
+    editTextUserInput.setText(savedInstanceState.getString("textInput"));
   }
 }
 
