@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-  public static final String NUMBER_REGEX = "-?\\d+(\\.\\d+)?";
+  public static final String NUMBER_REGEX = "\\d+";
   private BroadcastReceiver broadcastReceiverForSuccess = null;
   private BroadcastReceiver broadcastReceiverForFailure = null;
 
@@ -106,27 +106,11 @@ public class MainActivity extends AppCompatActivity {
         buttonCalculateRoots.setEnabled(true);
         editTextUserInput.setEnabled(true);
         long timeCalcInSeconds = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
-        long originalNumber = incomingIntent.getLongExtra("original_number", 0);
         Toast.makeText(MainActivity.this, "calculation aborted after 20 seconds", Toast.LENGTH_SHORT).show();
 
       }
     };
     registerReceiver(broadcastReceiverForFailure, new IntentFilter("stopped_calculations"));
-//        // success finding roots!
-//        /*
-//         TODO: handle "roots-found" as defined in the spec (below).
-//          also:
-//           - the service found roots and passed them to you in the `incomingIntent`. extract them.
-//           - when creating an intent to open the new-activity, pass the roots as extras to the new-activity intent
-//             (see for example how did we pass an extra when starting the calculation-service)
-//         */
-
-    /*
-    todo:
-     add a broadcast-receiver to listen for abort-calculating as defined in the spec (below)
-     to show a Toast, use this code:
-     `Toast.makeText(this, "text goes here", Toast.LENGTH_SHORT).show()`
-     */
   }
 
   @Override
@@ -154,8 +138,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 /*
-
-TODO:
 the spec is:
 
 upon launch, Activity starts out "clean":
