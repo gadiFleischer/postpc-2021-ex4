@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
         showResultsIntent.putExtra("root2", secondRoot);
         showResultsIntent.putExtra("time_until_give_up_seconds", timeCalc);
         startActivity(showResultsIntent);
+
       }
     };
     registerReceiver(broadcastReceiverForSuccess, new IntentFilter("found_roots"));
@@ -106,8 +107,7 @@ public class MainActivity extends AppCompatActivity {
         buttonCalculateRoots.setEnabled(true);
         editTextUserInput.setEnabled(true);
         long timeCalcInSeconds = incomingIntent.getLongExtra("time_until_give_up_seconds", 0);
-        Toast.makeText(MainActivity.this, "calculation aborted after 20 seconds", Toast.LENGTH_SHORT).show();
-
+        Toast.makeText(MainActivity.this, "calculation aborted after "+timeCalcInSeconds+" seconds", Toast.LENGTH_SHORT).show();
       }
     };
     registerReceiver(broadcastReceiverForFailure, new IntentFilter("stopped_calculations"));
